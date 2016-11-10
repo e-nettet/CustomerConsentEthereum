@@ -15,11 +15,11 @@ provider "docker" {
 }
 
 resource "docker_image" "ethereum_node" {
-    name = "ethereum-node:latest"
+    name = "enettet/ethereum-node:latest"
 }
 
 resource "docker_image" "ethereum_bootnode" {
-    name = "ethereum-bootnode:latest"
+    name = "enettet/ethereum-bootnode:latest"
 }
 
 resource "docker_container" "ethereum_node" {
