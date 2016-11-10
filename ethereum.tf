@@ -10,6 +10,10 @@ variable "miner_etherbase" {
     default = "0x0000000000000000000000000000000000000001"
 }
 
+variable "volume_path" {
+    default = "/var/lib/enettet-ethereum"
+}
+
 provider "docker" {
     host = "${var.docker_host}"
 }
@@ -23,19 +27,24 @@ resource "docker_image" "ethereum_bootnode" {
 }
 
 resource "docker_container" "ethereum_node" {
+    count = 1
     image = "${docker_image.ethereum_node.latest}"
-    name = "ethereum-node"
-    hostname = "node0"
+    name = "ethereum-node${count.index}"
+    hostname = "node${count.index}"
     depends_on = [
         "docker_container.ethereum_bootnode"
     ]
-    ports {
-        internal = 8545
-        external = 8545
+    volumes {
+        container_path = "/root/.ethereum"
+        host_path = "${var.volume_path}/node${count.index}/ethereum"
     }
     ports {
-        internal = 8546
-        external = 8546
+        internal = "8545"
+        external = "${8545 + (10 * count.index)}"
+    }
+    ports {
+        internal = "8546"
+        external = "${8546 + (10 * count.index)}"
     }
     links = [
         "${docker_container.ethereum_bootnode.name}:bootnode"
@@ -50,14 +59,14 @@ resource "docker_container" "ethereum_node" {
         "--rpcapi",
         "db,eth,net,web3,personal",
         "--rpcaddr",
-        "node0",
+        "node${count.index}",
         "--rpcport",
         "8545",
         "--ws",
         "--wsorigins",
         "'*'",
         "--wsaddr",
-        "node0",
+        "node${count.index}",
         "--wsport",
         "8546"
     ]
@@ -75,6 +84,14 @@ resource "docker_container" "ethereum_miner" {
     links = [
         "${docker_container.ethereum_bootnode.name}:bootnode"
     ]
+    volumes {
+        container_path = "/root/.ethereum"
+        host_path = "${var.volume_path}/miner/ethereum"
+    }
+    volumes {
+        container_path = "/root/.ethash"
+        host_path = "${var.volume_path}/miner/ethash"
+    }
     command = [
         "--bootnodes=enode://${var.bootnode_enode}@${docker_container.ethereum_bootnode.ip_address}:30301",
         "--fast",
@@ -90,6 +107,10 @@ resource "docker_container" "ethereum_miner" {
 resource "docker_container" "ethereum_bootnode" {
     image = "${docker_image.ethereum_bootnode.latest}"
     name = "ethereum-bootnode"
+    volumes {
+        container_path = "/root/.ethereum"
+        host_path = "${var.volume_path}/bootnode/ethereum"
+    }
     ports {
         internal = 30301
         external = 30301

@@ -13,5 +13,3 @@ RUN apt-get update && \
 
 EXPOSE 8545
 EXPOSE 30303
-
-ENTRYPOINT ["/usr/bin/geth"]
