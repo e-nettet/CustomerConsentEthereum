@@ -14,7 +14,6 @@
       "RPC_HOST"    : "node0",
       "RPC_PORT"    : "8545",
       "INSTANCE_NAME"   : "eth-0",
-      "WS_SERVER"     : "http://netstats:3000"
     }
   },
   {
@@ -29,10 +28,26 @@
     "env":
     {
       "NODE_ENV"    : "production",
-      "RPC_HOST"    : "node1",
+      "RPC_HOST"    : "bootnode",
       "RPC_PORT"    : "8545",
       "INSTANCE_NAME"   : "eth-1",
-      "WS_SERVER"     : "http://netstats:3000"
     }
   },
+  {
+    "name"        : "eth-2",
+    "cwd"         : ".",
+    "script"      : "app.js",
+    "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+    "merge_logs"    : false,
+    "watch"       : false,
+    "exec_interpreter"  : "node",
+    "exec_mode"     : "fork_mode",
+    "env":
+    {
+      "NODE_ENV"    : "production",
+      "RPC_HOST"    : "minernode",
+      "RPC_PORT"    : "8545",
+      "INSTANCE_NAME"   : "eth-2",
+    }
+  }
 ]

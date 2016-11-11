@@ -11,8 +11,12 @@ ethereum-bootnode: ethereum-node
 	docker tag ethereum-bootnode enettet/ethereum-bootnode
 ethereum-netstats: ethereum-netstats
 	docker build -t ethereum-netstats eth-netstats
+	docker tag ethereum-netstats enettet/ethereum-netstats
 	docker build -t ethereum-netstats-api eth-net-intelligence-api
+	docker tag ethereum-netstats-api enettet/ethereum-netstats-api
 push:
 	docker push enettet/ethereum-base
 	docker push enettet/ethereum-node
 	docker push enettet/ethereum-bootnode
+	docker push enettet/ethereum-netstats
+	docker push enettet/ethereum-netstats-api

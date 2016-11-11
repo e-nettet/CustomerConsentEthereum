@@ -4,6 +4,7 @@ variable "docker_host" {
 
 variable "netstat_secret" {
     default = "fc3790e391e058a04d6a81aac40e1e51adb675f85a2e0d5c9c95477b22836185ffe5761c4c21f049cdb2b579ff615935"
+}
 
 variable "bootnode_enode" {
     default = "53216148b33a67390c2c76a41e5b59af74f5842d2f983d17af66874d007f1d2b62efe6f73872a77a7799ab5b0a6fb4318416c2b8d3b6e7f665676629e2e45da0"
@@ -150,11 +151,13 @@ resource "docker_container" "ethereum_netstats_api" {
     image = "${docker_image.ethereum_netstats_api.latest}"
     name = "ethereum-netstats-api"
     env = [
-      "WS_SECRET=${var.netstat_secret}"
+      "WS_SECRET=${var.netstat_secret}",
+      "WS_SERVER=http://netstats:3000"
     ]
     links = [
       "${docker_container.ethereum_netstats.name}:netstats",
       "${docker_container.ethereum_node.name}:node0",
-      "${docker_container.ethereum_bootnode.name}:node1"
+      "${docker_container.ethereum_bootnode.name}:bootnode",
+      "${docker_container.ethereum_miner.name}:minernode"
     ]
 }
