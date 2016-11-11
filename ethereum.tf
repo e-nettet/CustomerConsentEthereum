@@ -31,11 +31,11 @@ resource "docker_image" "ethereum_bootnode" {
 }
 
 resource "docker_image" "ethereum_netstats" {
-    name = "ethereum-netstats:latest"
+    name = "enettet/ethereum-netstats:latest"
 }
 
 resource "docker_image" "ethereum_netstats_api" {
-    name = "ethereum-netstats-api:latest"
+    name = "enettet/ethereum-netstats-api:latest"
 }
 
 resource "docker_container" "ethereum_node" {
