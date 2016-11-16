@@ -39,7 +39,7 @@ resource "docker_image" "ethereum_netstats_api" {
 }
 
 resource "docker_container" "ethereum_node" {
-    count = 1
+    count = 2
     image = "${docker_image.ethereum_node.latest}"
     name = "ethereum-node${count.index}"
     hostname = "node${count.index}"
@@ -91,7 +91,7 @@ resource "docker_container" "ethereum_node" {
 }
 
 resource "docker_container" "ethereum_miner" {
-    count = 1
+    count = 2
     image = "${docker_image.ethereum_node.latest}"
     name = "ethereum-miner${count.index}"
     hostname = "miner${count.index}"
@@ -114,7 +114,16 @@ resource "docker_container" "ethereum_miner" {
         "--lightkdf",
         "--mine",
         "--minerthreads=1",
-        "--etherbase=${var.miner_etherbase}"
+        "--etherbase=${var.miner_etherbase}",
+        "--rpc",
+        "--rpccorsdomain",
+        "'*'",
+        "--rpcapi",
+        "db,eth,net,web3",
+        "--rpcaddr",
+        "miner${count.index}",
+        "--rpcport",
+        "8545"
     ]
     must_run = true
     restart = "no"
@@ -147,7 +156,7 @@ resource "docker_container" "ethereum_netstats" {
         external = 3000
     }
     env = [
-      "WS_SECRET=${var.netstat_secret}"
+        "WS_SECRET=${var.netstat_secret}"
     ]
 }
 
@@ -155,13 +164,15 @@ resource "docker_container" "ethereum_netstats_api" {
     image = "${docker_image.ethereum_netstats_api.latest}"
     name = "ethereum-netstats-api"
     env = [
-      "WS_SECRET=${var.netstat_secret}",
-      "WS_SERVER=http://netstats:3000"
+        "WS_SECRET=${var.netstat_secret}",
+        "WS_SERVER=http://netstats:3000"
     ]
     links = [
-      "${docker_container.ethereum_netstats.name}:netstats",
+        "${docker_container.ethereum_netstats.name}:netstats",
         "${docker_container.ethereum_node.0.name}:node0",
-      "${docker_container.ethereum_bootnode.name}:bootnode",
-        "${docker_container.ethereum_miner.0.name}:minernode"
+        "${docker_container.ethereum_node.1.name}:node1",
+        "${docker_container.ethereum_bootnode.name}:bootnode",
+        "${docker_container.ethereum_miner.0.name}:minernode0",
+        "${docker_container.ethereum_miner.1.name}:minernode1"
     ]
 }
