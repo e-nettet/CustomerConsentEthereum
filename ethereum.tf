@@ -1,7 +1,3 @@
-variable "docker_host" {
-    default = "unix:///var/run/docker.sock"
-}
-
 variable "netstat_secret" {
     default = "fc3790e391e058a04d6a81aac40e1e51adb675f85a2e0d5c9c95477b22836185ffe5761c4c21f049cdb2b579ff615935"
 }
@@ -19,7 +15,8 @@ variable "volume_path" {
 }
 
 provider "docker" {
-    host = "${var.docker_host}"
+    host = "tcp://${aws_instance.consent_ec2.0.public_ip}:2376"
+    cert_path = "docker_0"
 }
 
 resource "docker_image" "ethereum_node" {
@@ -91,7 +88,7 @@ resource "docker_container" "ethereum_node" {
 }
 
 resource "docker_container" "ethereum_miner" {
-    count = 2
+    count = 0
     image = "${docker_image.ethereum_node.latest}"
     name = "ethereum-miner${count.index}"
     hostname = "miner${count.index}"
@@ -171,8 +168,8 @@ resource "docker_container" "ethereum_netstats_api" {
         "${docker_container.ethereum_netstats.name}:netstats",
         "${docker_container.ethereum_node.0.name}:node0",
         "${docker_container.ethereum_node.1.name}:node1",
-        "${docker_container.ethereum_bootnode.name}:bootnode",
-        "${docker_container.ethereum_miner.0.name}:minernode0",
-        "${docker_container.ethereum_miner.1.name}:minernode1"
+        "${docker_container.ethereum_bootnode.name}:bootnode"
+        // "${docker_container.ethereum_miner.0.name}:minernode0",
+        // "${docker_container.ethereum_miner.1.name}:minernode1"
     ]
 }
