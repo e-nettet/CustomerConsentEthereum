@@ -19,20 +19,40 @@ provider "docker" {
     cert_path = "docker_0"
 }
 
-resource "docker_image" "ethereum_node" {
+data "docker_registry_image" "ethereum_node" {
     name = "enettet/ethereum-node:latest"
 }
 
-resource "docker_image" "ethereum_bootnode" {
+data "docker_registry_image" "ethereum_bootnode" {
     name = "enettet/ethereum-bootnode:latest"
 }
 
-resource "docker_image" "ethereum_netstats" {
+data "docker_registry_image" "ethereum_netstats" {
     name = "enettet/ethereum-netstats:latest"
 }
 
-resource "docker_image" "ethereum_netstats_api" {
+data "docker_registry_image" "ethereum_netstats_api" {
     name = "enettet/ethereum-netstats-api:latest"
+}
+
+resource "docker_image" "ethereum_node" {
+    name = "${data.docker_registry_image.ethereum_node.name}"
+    pull_trigger = "${data.docker_registry_image.ethereum_node.sha256_digest}"
+}
+
+resource "docker_image" "ethereum_bootnode" {
+    name = "${data.docker_registry_image.ethereum_bootnode.name}"
+    pull_trigger = "${data.docker_registry_image.ethereum_bootnode.sha256_digest}"
+}
+
+resource "docker_image" "ethereum_netstats" {
+    name = "${data.docker_registry_image.ethereum_netstats.name}"
+    pull_trigger = "${data.docker_registry_image.ethereum_netstats.sha256_digest}"
+}
+
+resource "docker_image" "ethereum_netstats_api" {
+    name = "${data.docker_registry_image.ethereum_netstats_api.name}"
+    pull_trigger = "${data.docker_registry_image.ethereum_netstats_api.sha256_digest}"
 }
 
 resource "docker_container" "ethereum_node" {
