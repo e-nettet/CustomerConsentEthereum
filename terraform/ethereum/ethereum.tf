@@ -14,8 +14,11 @@ variable "volume_path" {
     default = "/var/lib/enettet-ethereum"
 }
 
+variable "docker_host" {
+}
+
 provider "docker" {
-    host = "tcp://${aws_instance.consent_ec2.0.public_ip}:2376"
+    host = "tcp://${var.docker_host}:2376"
     cert_path = "docker_0"
 }
 
