@@ -1,4 +1,6 @@
+**/.terraform/modules
 terraform.tfstate
 terraform.tfstate.backup
 *secret*
 *.pem
+.idea

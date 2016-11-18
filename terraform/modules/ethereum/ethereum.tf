@@ -17,9 +17,12 @@ variable "volume_path" {
 variable "docker_host" {
 }
 
+variable "docker_cert_path" {
+}
+
 provider "docker" {
-    host = "tcp://${var.docker_host}:2376"
-    cert_path = "docker_0"
+    host = "${var.docker_host}"
+    cert_path = "${var.docker_cert_path}"
 }
 
 data "docker_registry_image" "ethereum_node" {
@@ -86,6 +89,7 @@ resource "docker_container" "ethereum_node" {
         "${docker_container.ethereum_bootnode.name}:bootnode"
     ]
     command = [
+        "--networkid=12368524569852",
         "--bootnodes=enode://${var.bootnode_enode}@${docker_container.ethereum_bootnode.ip_address}:30301",
         "--lightkdf",
         "--rpc",
@@ -104,46 +108,9 @@ resource "docker_container" "ethereum_node" {
         "node${count.index}",
         "--wsport",
         "8546",
-        "--autodag"
-    ]
-    must_run = true
-    restart = "no"
-}
-
-resource "docker_container" "ethereum_miner" {
-    count = 0
-    image = "${docker_image.ethereum_node.latest}"
-    name = "ethereum-miner${count.index}"
-    hostname = "miner${count.index}"
-    depends_on = [
-        "docker_container.ethereum_bootnode"
-    ]
-    links = [
-        "${docker_container.ethereum_bootnode.name}:bootnode"
-    ]
-    volumes {
-        container_path = "/root/.ethereum"
-        host_path = "${var.volume_path}/miner${count.index}/ethereum"
-    }
-    volumes {
-        container_path = "/root/.ethash"
-        host_path = "${var.volume_path}/miner${count.index}/ethash"
-    }
-    command = [
-        "--bootnodes=enode://${var.bootnode_enode}@${docker_container.ethereum_bootnode.ip_address}:30301",
-        "--lightkdf",
-        "--mine",
+        "--autodag",
         "--minerthreads=1",
-        "--etherbase=${var.miner_etherbase}",
-        "--rpc",
-        "--rpccorsdomain",
-        "'*'",
-        "--rpcapi",
-        "db,eth,net,web3",
-        "--rpcaddr",
-        "miner${count.index}",
-        "--rpcport",
-        "8545"
+        "--etherbase=${var.miner_etherbase}"
     ]
     must_run = true
     restart = "no"
@@ -190,9 +157,6 @@ resource "docker_container" "ethereum_netstats_api" {
     links = [
         "${docker_container.ethereum_netstats.name}:netstats",
         "${docker_container.ethereum_node.0.name}:node0",
-        "${docker_container.ethereum_node.1.name}:node1",
         "${docker_container.ethereum_bootnode.name}:bootnode"
-        // "${docker_container.ethereum_miner.0.name}:minernode0",
-        // "${docker_container.ethereum_miner.1.name}:minernode1"
     ]
 }

@@ -212,7 +212,7 @@ resource "aws_instance" "consent_ec2" {
         ]
         connection {
             user = "${var.consent_ec2_user}"
-            key_file = "${var.consent_key_file}"
+            private_key = "${file(var.consent_key_file)}"
             agent = "false"
         }
     }
