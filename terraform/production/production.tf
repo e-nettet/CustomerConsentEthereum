@@ -22,4 +22,12 @@ module "consent_ethereum" {
     source = "../modules/ethereum"
     docker_host = "tcp://${module.consent_aws.consent_ec2_public_ip}:2376"
     docker_cert_path = "docker_0"
+    netstats_secret = "fc3790e391e058a04d6a81aac40e1e51adb675f85a2e0d5c9c95477b22836185ffe5761c4c21f049cdb2b579ff615935"
+}
+
+module "consent_netstats" {
+    source = "../modules/netstats"
+    docker_host = "tcp://${module.consent_aws.consent_ec2_public_ip}:2376"
+    docker_cert_path = "docker_0"
+    netstats_secret = "fc3790e391e058a04d6a81aac40e1e51adb675f85a2e0d5c9c95477b22836185ffe5761c4c21f049cdb2b579ff615935"
 }

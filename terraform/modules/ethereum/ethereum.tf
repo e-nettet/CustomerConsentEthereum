@@ -1,5 +1,4 @@
-variable "netstat_secret" {
-    default = "fc3790e391e058a04d6a81aac40e1e51adb675f85a2e0d5c9c95477b22836185ffe5761c4c21f049cdb2b579ff615935"
+variable "netstats_secret" {
 }
 
 variable "bootnode_enode" {
@@ -37,10 +36,6 @@ data "docker_registry_image" "ethereum_bootnode" {
     name = "enettet/ethereum-bootnode:latest"
 }
 
-data "docker_registry_image" "ethereum_netstats" {
-    name = "enettet/ethereum-netstats:latest"
-}
-
 data "docker_registry_image" "ethereum_netstats_api" {
     name = "enettet/ethereum-netstats-api:latest"
 }
@@ -53,11 +48,6 @@ resource "docker_image" "ethereum_node" {
 resource "docker_image" "ethereum_bootnode" {
     name = "${data.docker_registry_image.ethereum_bootnode.name}"
     pull_trigger = "${data.docker_registry_image.ethereum_bootnode.sha256_digest}"
-}
-
-resource "docker_image" "ethereum_netstats" {
-    name = "${data.docker_registry_image.ethereum_netstats.name}"
-    pull_trigger = "${data.docker_registry_image.ethereum_netstats.sha256_digest}"
 }
 
 resource "docker_image" "ethereum_netstats_api" {
@@ -139,31 +129,19 @@ resource "docker_container" "ethereum_bootnode" {
     restart = "no"
 }
 
-resource "docker_container" "ethereum_netstats" {
-    image = "${docker_image.ethereum_netstats.latest}"
-    name = "ethereum-netstats"
-    ports {
-        internal = 3000
-        external = 3000
-    }
-    env = [
-        "WS_SECRET=${var.netstat_secret}"
-    ]
-}
-
 resource "docker_container" "ethereum_netstats_api" {
     count = "${var.node_count}"
     image = "${docker_image.ethereum_netstats_api.latest}"
     name = "ethereum-netstats-api${count.index}"
     env = [
-        "WS_SECRET=${var.netstat_secret}",
+        "WS_SECRET=${var.netstats_secret}",
         "WS_SERVER=http://netstats:3000",
         "INSTANCE_NAME=node${count.index}",
         "RPC_HOST=node${count.index}",
         "RPC_PORT=8545",
     ]
     links = [
-        "${docker_container.ethereum_netstats.name}:netstats",
+        "ethereum-netstats:netstats",
         "${docker_container.ethereum_node.0.name}:node0",
         "${docker_container.ethereum_node.1.name}:node1",
         "${docker_container.ethereum_bootnode.name}:bootnode"
