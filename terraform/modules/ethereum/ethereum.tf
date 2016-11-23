@@ -152,7 +152,10 @@ resource "docker_container" "ethereum_netstats_api" {
     name = "ethereum-netstats-api"
     env = [
         "WS_SECRET=${var.netstat_secret}",
-        "WS_SERVER=http://netstats:3000"
+        "WS_SERVER=http://netstats:3000",
+        "INSTANCE_NAME=node0",
+        "RPC_HOST=node0",
+        "RPC_PORT=8545",
     ]
     links = [
         "${docker_container.ethereum_netstats.name}:netstats",
