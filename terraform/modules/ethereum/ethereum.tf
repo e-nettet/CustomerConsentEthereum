@@ -14,6 +14,10 @@ variable "volume_path" {
     default = "/var/lib/enettet-ethereum"
 }
 
+variable "node_count" {
+    default = 2
+}
+
 variable "docker_host" {
 }
 
@@ -62,7 +66,7 @@ resource "docker_image" "ethereum_netstats_api" {
 }
 
 resource "docker_container" "ethereum_node" {
-    count = 2
+    count = "${var.node_count}"
     image = "${docker_image.ethereum_node.latest}"
     name = "ethereum-node${count.index}"
     hostname = "node${count.index}"
@@ -148,18 +152,20 @@ resource "docker_container" "ethereum_netstats" {
 }
 
 resource "docker_container" "ethereum_netstats_api" {
+    count = "${var.node_count}"
     image = "${docker_image.ethereum_netstats_api.latest}"
-    name = "ethereum-netstats-api"
+    name = "ethereum-netstats-api${count.index}"
     env = [
         "WS_SECRET=${var.netstat_secret}",
         "WS_SERVER=http://netstats:3000",
-        "INSTANCE_NAME=node0",
-        "RPC_HOST=node0",
+        "INSTANCE_NAME=node${count.index}",
+        "RPC_HOST=node${count.index}",
         "RPC_PORT=8545",
     ]
     links = [
         "${docker_container.ethereum_netstats.name}:netstats",
         "${docker_container.ethereum_node.0.name}:node0",
+        "${docker_container.ethereum_node.1.name}:node1",
         "${docker_container.ethereum_bootnode.name}:bootnode"
     ]
 }

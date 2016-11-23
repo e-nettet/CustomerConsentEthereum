@@ -1,6 +1,7 @@
 **/.terraform/modules
 terraform.tfstate
 terraform.tfstate.backup
+terraform-error-*.log
 *secret*
 *.pem
 .idea
