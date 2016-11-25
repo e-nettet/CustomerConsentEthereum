@@ -90,6 +90,7 @@ resource "docker_container" "ethereum_node" {
         protocol = "udp"
     }
     command = [
+        "--networkid=94642",
         "--port=${30304 + count.index}",
         "--nat=${var.node_nat}",
         "--bootnodes=enode://${var.bootnode_enode}@${var.bootnode_host}:30301",
