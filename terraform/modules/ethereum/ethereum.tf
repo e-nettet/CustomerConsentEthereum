@@ -1,8 +1,20 @@
 variable "netstats_secret" {
 }
 
+variable "netstats_host" {
+}
+
 variable "bootnode_enode" {
     default = "53216148b33a67390c2c76a41e5b59af74f5842d2f983d17af66874d007f1d2b62efe6f73872a77a7799ab5b0a6fb4318416c2b8d3b6e7f665676629e2e45da0"
+}
+
+variable "bootnode_host" {
+}
+
+variable "node_nat" {
+}
+
+variable "node_name" {
 }
 
 variable "miner_etherbase" {
@@ -14,7 +26,7 @@ variable "volume_path" {
 }
 
 variable "node_count" {
-    default = 2
+    default = 1
 }
 
 variable "docker_host" {
@@ -32,10 +44,6 @@ data "docker_registry_image" "ethereum_node" {
     name = "enettet/ethereum-node:latest"
 }
 
-data "docker_registry_image" "ethereum_bootnode" {
-    name = "enettet/ethereum-bootnode:latest"
-}
-
 data "docker_registry_image" "ethereum_netstats_api" {
     name = "enettet/ethereum-netstats-api:latest"
 }
@@ -43,11 +51,6 @@ data "docker_registry_image" "ethereum_netstats_api" {
 resource "docker_image" "ethereum_node" {
     name = "${data.docker_registry_image.ethereum_node.name}"
     pull_trigger = "${data.docker_registry_image.ethereum_node.sha256_digest}"
-}
-
-resource "docker_image" "ethereum_bootnode" {
-    name = "${data.docker_registry_image.ethereum_bootnode.name}"
-    pull_trigger = "${data.docker_registry_image.ethereum_bootnode.sha256_digest}"
 }
 
 resource "docker_image" "ethereum_netstats_api" {
@@ -60,9 +63,6 @@ resource "docker_container" "ethereum_node" {
     image = "${docker_image.ethereum_node.latest}"
     name = "ethereum-node${count.index}"
     hostname = "node${count.index}"
-    depends_on = [
-        "docker_container.ethereum_bootnode"
-    ]
     volumes {
         container_path = "/root/.ethereum"
         host_path = "${var.volume_path}/node${count.index}/ethereum"
@@ -79,12 +79,20 @@ resource "docker_container" "ethereum_node" {
         internal = "8546"
         external = "${8546 + (10 * count.index)}"
     }
-    links = [
-        "${docker_container.ethereum_bootnode.name}:bootnode"
-    ]
+    ports {
+        internal = "${30304 + count.index}",
+        external = "${30304 + count.index}"
+        protocol = "tcp"
+    }
+    ports {
+        internal = "${30304 + count.index}",
+        external = "${30304 + count.index}"
+        protocol = "udp"
+    }
     command = [
-        "--networkid=12368524569852",
-        "--bootnodes=enode://${var.bootnode_enode}@${docker_container.ethereum_bootnode.ip_address}:30301",
+        "--port=${30304 + count.index}",
+        "--nat=${var.node_nat}",
+        "--bootnodes=enode://${var.bootnode_enode}@${var.bootnode_host}:30301",
         "--lightkdf",
         "--rpc",
         "--rpccorsdomain",
@@ -104,26 +112,8 @@ resource "docker_container" "ethereum_node" {
         "8546",
         "--autodag",
         "--minerthreads=1",
-        "--etherbase=${var.miner_etherbase}"
-    ]
-    must_run = true
-    restart = "no"
-}
-
-resource "docker_container" "ethereum_bootnode" {
-    image = "${docker_image.ethereum_bootnode.latest}"
-    name = "ethereum-bootnode"
-    volumes {
-        container_path = "/root/.ethereum"
-        host_path = "${var.volume_path}/bootnode/ethereum"
-    }
-    ports {
-        internal = 30301
-        external = 30301
-    }
-    command = [
-        "-nodekey",
-        "/etc/ethereum/boot.key"
+        "--etherbase=${var.miner_etherbase}",
+        "--verbosity=6"
     ]
     must_run = true
     restart = "no"
@@ -135,15 +125,15 @@ resource "docker_container" "ethereum_netstats_api" {
     name = "ethereum-netstats-api${count.index}"
     env = [
         "WS_SECRET=${var.netstats_secret}",
-        "WS_SERVER=http://netstats:3000",
-        "INSTANCE_NAME=node${count.index}",
+        "WS_SERVER=http://${var.netstats_host}:3000",
+        "INSTANCE_NAME=${var.node_name}${count.index}",
         "RPC_HOST=node${count.index}",
         "RPC_PORT=8545",
     ]
     links = [
-        "ethereum-netstats:netstats",
-        "${docker_container.ethereum_node.0.name}:node0",
-        "${docker_container.ethereum_node.1.name}:node1",
-        "${docker_container.ethereum_bootnode.name}:bootnode"
+        "ethereum-node${count.index}:node0",
+    ]
+    depends_on = [
+        "docker_container.ethereum_node"
     ]
 }

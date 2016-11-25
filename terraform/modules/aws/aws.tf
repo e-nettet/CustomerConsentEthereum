@@ -23,24 +23,21 @@ variable "consent_ec2_home" {
 }
 
 output "consent_ec2_public_ip" {
-    value = "${aws_instance.consent_ec2.0.public_ip}"
+    value = "${aws_eip.consent_ip.public_ip}"
 }
 
 provider "aws" {
-    alias = "0"
     access_key = "${var.consent_aws_access_key}"
     secret_key = "${var.consent_aws_secret_key}"
     region = "eu-central-1"
 }
 
 resource "aws_key_pair" "consent_key" {
-    provider = "aws.0"
     key_name = "consent_key"
     public_key = "${var.consent_public_key}"
 }
 
 resource "aws_vpc" "consent_vpc" {
-    provider = "aws.0"
     cidr_block = "10.0.2.0/24"
     instance_tenancy = "default"
     tags {
@@ -49,7 +46,6 @@ resource "aws_vpc" "consent_vpc" {
 }
 
 resource "aws_subnet" "consent_subnet" {
-    provider = "aws.0"
     vpc_id = "${aws_vpc.consent_vpc.id}"
     cidr_block = "10.0.2.0/24"
     availability_zone = "eu-central-1a"
@@ -59,7 +55,6 @@ resource "aws_subnet" "consent_subnet" {
 }
 
 resource "aws_internet_gateway" "consent_gateway" {
-    provider = "aws.0"
     vpc_id = "${aws_vpc.consent_vpc.id}"
     tags {
         Name = "consent_gateway"
@@ -67,7 +62,6 @@ resource "aws_internet_gateway" "consent_gateway" {
 }
 
 resource "aws_route_table" "consent_route_table" {
-    provider = "aws.0"
     vpc_id = "${aws_vpc.consent_vpc.id}"
     route {
         cidr_block = "0.0.0.0/0"
@@ -79,13 +73,11 @@ resource "aws_route_table" "consent_route_table" {
 }
 
 resource "aws_main_route_table_association" "consent_main_route_table_association" {
-    provider = "aws.0"
     vpc_id = "${aws_vpc.consent_vpc.id}"
     route_table_id = "${aws_route_table.consent_route_table.id}"
 }
 
 resource "aws_iam_role" "consent_instance_role" {
-    provider = "aws.0"
     name = "consent_role"
     assume_role_policy = <<EOF
 {
@@ -105,7 +97,6 @@ EOF
 }
 
 resource "aws_iam_role_policy" "consent_role_policy" {
-    provider = "aws.0"
     name = "consent_role_policy"
     role = "${aws_iam_role.consent_instance_role.id}"
     policy = <<EOF
@@ -124,8 +115,16 @@ resource "aws_iam_role_policy" "consent_role_policy" {
 EOF
 }
 
+resource "aws_eip" "consent_ip" {
+    vpc = true
+}
+
+resource "aws_eip_association" "consent_ip_association" {
+    instance_id = "${aws_instance.consent_ec2.id}"
+    allocation_id = "${aws_eip.consent_ip.id}"
+}
+
 resource "aws_security_group" "consent_security_group" {
-    provider = "aws.0"
     name = "consent_security_group"
     vpc_id = "${aws_vpc.consent_vpc.id}"
     ingress {
@@ -140,8 +139,30 @@ resource "aws_security_group" "consent_security_group" {
         from_port = 3000
         to_port = 3000
         protocol = "tcp"
+        self = true
         cidr_blocks = [
-            "${var.consent_cidr_blocks}"
+            "${var.consent_cidr_blocks}",
+            "${aws_eip.consent_ip.public_ip}/32"
+        ]
+    }
+    ingress {
+        from_port = 30301
+        to_port = 30309
+        protocol = "tcp"
+        self = true
+        cidr_blocks = [
+            "${var.consent_cidr_blocks}",
+            "${aws_eip.consent_ip.public_ip}/32"
+        ]
+    }
+    ingress {
+        from_port = 0
+        to_port = 0
+        protocol = "udp"
+        self = true
+        cidr_blocks = [
+            "${var.consent_cidr_blocks}",
+            "${aws_eip.consent_ip.public_ip}/32"
         ]
     }
     ingress {
@@ -174,7 +195,6 @@ resource "aws_security_group" "consent_security_group" {
 }
 
 resource "aws_iam_instance_profile" "consent_instance_profile" {
-    provider = "aws.0"
     name = "consent_instance_profile"
     roles = [
         "${aws_iam_role.consent_instance_role.id}"
@@ -182,10 +202,9 @@ resource "aws_iam_instance_profile" "consent_instance_profile" {
 }
 
 resource "aws_instance" "consent_ec2" {
-    provider = "aws.0"
     count = 1
     ami = "ami-2025df4f"
-    instance_type = "t2.micro"
+    instance_type = "t2.small"
     availability_zone = "eu-central-1a"
     ebs_optimized = false
     associate_public_ip_address = true
@@ -196,7 +215,7 @@ resource "aws_instance" "consent_ec2" {
         "${aws_security_group.consent_security_group.id}"
     ]
     root_block_device = {
-        volume_type = "standard"
+        volume_type = "gp2"
         volume_size = 8
         delete_on_termination = true
     }
@@ -206,7 +225,7 @@ resource "aws_instance" "consent_ec2" {
     provisioner "remote-exec" {
         inline = [
             "sudo ros config set rancher.docker.tls true",
-            "sudo ros tls gen --server -H localhost -H ${self.public_ip}",
+            "sudo ros tls gen --server -H localhost -H ${aws_eip.consent_ip.public_ip}",
             "sudo system-docker restart docker",
             "sudo ros tls gen"
         ]
