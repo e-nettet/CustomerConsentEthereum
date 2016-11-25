@@ -11,4 +11,5 @@ module "consent_ethereum" {
     node_nat = "any"
     node_count = 2
     node_name = "${var.node_name}"
+    node_verbosity = 3
 }

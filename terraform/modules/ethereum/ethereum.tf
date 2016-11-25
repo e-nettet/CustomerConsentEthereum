@@ -29,6 +29,10 @@ variable "node_count" {
     default = 1
 }
 
+variable "node_verbosity" {
+    default = 3
+}
+
 variable "docker_host" {
 }
 
@@ -114,7 +118,7 @@ resource "docker_container" "ethereum_node" {
         "--autodag",
         "--minerthreads=1",
         "--etherbase=${var.miner_etherbase}",
-        "--verbosity=6"
+        "--verbosity=${var.node_verbosity}"
     ]
     must_run = true
     restart = "no"

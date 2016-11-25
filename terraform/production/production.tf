@@ -35,6 +35,7 @@ module "consent_ethereum" {
     node_nat = "extip:${module.consent_aws.consent_ec2_public_ip}"
     node_name = "master"
     node_count = 2
+    node_verbosity = 5
 }
 
 module "consent_netstats" {
