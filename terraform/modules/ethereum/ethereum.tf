@@ -118,7 +118,8 @@ resource "docker_container" "ethereum_node" {
         "--autodag",
         "--minerthreads=1",
         "--etherbase=${var.miner_etherbase}",
-        "--verbosity=${var.node_verbosity}"
+        "--verbosity=${var.node_verbosity}",
+        "--shh"
     ]
     must_run = true
     restart = "no"
