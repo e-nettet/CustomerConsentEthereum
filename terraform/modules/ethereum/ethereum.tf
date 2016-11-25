@@ -103,7 +103,7 @@ resource "docker_container" "ethereum_node" {
         "--rpccorsdomain",
         "'*'",
         "--rpcapi",
-        "db,eth,net,web3,personal",
+        "db,eth,net,web3,personal,shh",
         "--rpcaddr",
         "node${count.index}",
         "--rpcport",
