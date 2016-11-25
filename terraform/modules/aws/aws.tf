@@ -157,7 +157,7 @@ resource "aws_security_group" "consent_security_group" {
     }
     ingress {
         from_port = 0
-        to_port = 0
+        to_port = 65535
         protocol = "udp"
         self = true
         cidr_blocks = [
