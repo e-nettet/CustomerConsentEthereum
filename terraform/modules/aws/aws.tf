@@ -132,7 +132,7 @@ resource "aws_security_group" "consent_security_group" {
         to_port = 22
         protocol = "tcp"
         cidr_blocks = [
-            "${var.consent_cidr_blocks}"
+            "${split(",", var.consent_cidr_blocks)}"
         ]
     }
     ingress {
@@ -141,7 +141,7 @@ resource "aws_security_group" "consent_security_group" {
         protocol = "tcp"
         self = true
         cidr_blocks = [
-            "${var.consent_cidr_blocks}",
+            "${split(",", var.consent_cidr_blocks)}",
             "${aws_eip.consent_ip.public_ip}/32"
         ]
     }
@@ -151,7 +151,7 @@ resource "aws_security_group" "consent_security_group" {
         protocol = "tcp"
         self = true
         cidr_blocks = [
-            "${var.consent_cidr_blocks}",
+            "${split(",", var.consent_cidr_blocks)}",
             "${aws_eip.consent_ip.public_ip}/32"
         ]
     }
@@ -161,7 +161,7 @@ resource "aws_security_group" "consent_security_group" {
         protocol = "udp"
         self = true
         cidr_blocks = [
-            "${var.consent_cidr_blocks}",
+            "${split(",", var.consent_cidr_blocks)}",
             "${aws_eip.consent_ip.public_ip}/32"
         ]
     }
@@ -170,7 +170,7 @@ resource "aws_security_group" "consent_security_group" {
         to_port = 2376
         protocol = "tcp"
         cidr_blocks = [
-            "${var.consent_cidr_blocks}"
+            "${split(",", var.consent_cidr_blocks)}"
         ]
     }
     ingress {
