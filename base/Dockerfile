@@ -1,4 +1,4 @@
-FROM alpine:3.4
+FROM alpine:latest
 
 RUN \
   apk add --update git go make gcc musl-dev && \

@@ -1,10 +1,12 @@
-FROM node:latest
+FROM node:alpine
 
 RUN \
-  git clone https://github.com/cubedro/eth-net-intelligence-api && \
-  cd  eth-net-intelligence-api && \
+  apk add --update git && \
+  git clone --depth 1 https://github.com/cubedro/eth-net-intelligence-api && \
+  cd eth-net-intelligence-api && \
   npm install && \
-  npm install -g pm2
+  npm install -g pm2 && \
+  apk del git
 
 COPY app.json /eth-net-intelligence-api/app.json
 
