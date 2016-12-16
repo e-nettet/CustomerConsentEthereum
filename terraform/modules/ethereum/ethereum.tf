@@ -39,6 +39,10 @@ variable "docker_host" {
 variable "docker_cert_path" {
 }
 
+output "first_node_name" {
+    value = "${docker_container.ethereum_node.0.name}"
+}
+
 provider "docker" {
     host = "${var.docker_host}"
     cert_path = "${var.docker_cert_path}"
