@@ -21,7 +21,9 @@ Please note that the default configuration publishes all administrative function
  2. `miner.setEtherbase('public key')` set to where transfer currency
  3. `miner.start(1)` to start mining
 
-## Ethereum Wallet (Mac only)
+## Development tools
+
+### Ethereum Wallet (Mac only)
  1. `cd /Applications/Ethereum\ Wallet.app/Contents/MacOS/`
  2. `./Ethereum\ Wallet --rpc http://localhost:8545`
 
@@ -50,3 +52,4 @@ Please note that the initial startup time for a miner can be over 15 minutes dur
 ### module.consent_ethereum.provider.docker: "ca_material": conflicts with cert_path ("") module.consent_ethereum.provider.docker: "cert_material": conflicts with cert_path ("") module.consent_ethereum.provider.docker: "key_material": conflicts with cert_path ("")
 
 Install [Terraform 0.7.12](https://releases.hashicorp.com/terraform/0.7.12/)
+Applies to Terraform 0.8.0 and 0.8.1. See https://github.com/hashicorp/terraform/issues/10754.
