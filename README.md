@@ -5,10 +5,10 @@
  1. Install [Docker](https://www.docker.com/)
  2. Install [Terraform](https://www.terraform.io/)
  3. `cd terraform/personal`
- 4. Change `volume_path` to your docker persistent folder
- 5. `terraform get`
- 6. `terraform apply`
- 7. Type a name for your node.
+ 4a. (Mac only) Change `volume_path` to your docker persistent folder
+ 4b. `terraform get`
+ 5. `terraform apply`
+ 6. Type a name for your node.
 
 The default configuration will start two Docker container for the actual Ethereum nodes called *ethereum-node0* and *ethereum-node1*, and two containers linked to Ethereum nodes called *ethereum-netstats-api0* and *ethereum-netstats-api1* that report statistics to the [Ethereum Network Status](http://35.156.138.143:3000/) dashboard. You can change the number of nodes by editing *personal.tf*.
 
@@ -21,7 +21,7 @@ Please note that the default configuration publishes all administrative function
  2. `miner.setEtherbase('public key')` set to where transfer currency
  3. `miner.start(1)` to start mining
 
-## Ethereum Wallet
+## Ethereum Wallet (Mac only)
  1. `cd /Applications/Ethereum\ Wallet.app/Contents/MacOS/`
  2. `./Ethereum\ Wallet --rpc http://localhost:8545`
 
