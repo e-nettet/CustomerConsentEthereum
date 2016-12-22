@@ -146,6 +146,16 @@ resource "aws_security_group" "consent_security_group" {
         ]
     }
     ingress {
+        from_port = 8545
+        to_port = 8545
+        protocol = "tcp"
+        self = true
+        cidr_blocks = [
+            "${split(",", var.consent_cidr_blocks)}",
+            "${aws_eip.consent_ip.public_ip}/32"
+        ]
+    }
+    ingress {
         from_port = 30301
         to_port = 30309
         protocol = "tcp"
