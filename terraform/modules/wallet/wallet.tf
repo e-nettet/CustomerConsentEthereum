@@ -15,6 +15,7 @@ data "docker_registry_image" "consent_wallet" {
 
 resource "docker_image" "consent_wallet" {
     name = "${data.docker_registry_image.consent_wallet.name}"
+    pull_trigger = "${data.docker_registry_image.consent_wallet.sha256_digest}"
 }
 
 resource "docker_container" "consent_wallet" {
