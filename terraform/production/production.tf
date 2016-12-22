@@ -55,8 +55,8 @@ module "consent_id_service" {
     link_node = "${module.consent_ethereum.first_node_name}"
 }
 
-module "consent_wallet" {
+/*module "consent_wallet" {
     source = "../modules/wallet"
     docker_host = "tcp://${module.consent_aws.consent_ec2_public_ip}:2376"
-    docker_cert_path = "${var.docker_cert_path}"    
-}
+    docker_cert_path = "${var.docker_cert_path}"
+}*/
