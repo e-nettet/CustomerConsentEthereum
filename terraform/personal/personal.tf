@@ -12,4 +12,11 @@ module "consent_ethereum" {
     node_count = 2
     node_name = "${var.node_name}"
     node_verbosity = 3
+    volume_path = "/Users/rwi/var/lib/enettet-ethereum"
+}
+
+module "wallet" {
+  source = "../modules/wallet"
+  docker_host = "unix:///var/run/docker.sock"
+  docker_cert_path = ""
 }
