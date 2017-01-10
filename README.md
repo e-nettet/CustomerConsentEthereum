@@ -19,7 +19,7 @@ Please note that the default configuration publishes all administrative function
 ## How to mine?
  1. `docker exec -it ethereum-node0 geth attach`
  2. `miner.setEtherbase('public key')` set to where transfer currency
- 3. `miner.start(1)` to start mining
+ 3. `miner.start()` to start mining
 
 ## Development tools
 
@@ -42,7 +42,7 @@ Transactions will only function if there is an active miner in the blockchain. I
 Even with an active miner, transactions may still time out, because it will not mine them. If the miner does not receive any blocks from other nodes, it will assume it is out of sync and will not attempt to mine the transactions. What you want then is to start mining on your own node:
 
  1. `docker exec -it ethereum-node0 geth attach`
- 2. `miner.start(1)` to start mining
+ 2. `miner.start()` to start mining
  3. `miner.stop()` to stop mining
 
 It is usually enough to run a miner for a few moments (assuming there are other active miners) just to let the other nodes know that your node is alive.
