@@ -4,7 +4,7 @@ variable "docker_host" {
 variable "docker_cert_path" {
 }
 
-variable "link_node" {
+variable "node_host" {
 }
 
 provider "docker" {
@@ -29,10 +29,7 @@ resource "docker_container" "consent_ethexplorer" {
         external = 8000
     }
     env = [
-        "WEB3_RPC=http://node0:8545",
-    ]
-    links = [
-        "${var.link_node}:node0",
+        "WEB3_RPC=http://${var.node_host}:8545",
     ]
     must_run = true
     restart = "always"
