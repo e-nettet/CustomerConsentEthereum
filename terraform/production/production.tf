@@ -60,3 +60,10 @@ module "consent_wallet" {
     docker_host = "tcp://${module.consent_aws.consent_ec2_public_ip}:2376"
     docker_cert_path = "${var.docker_cert_path}"
 }
+
+module "consent_ethexplorer" {
+    source = "../modules/ethexplorer"
+    docker_host = "tcp://${module.consent_aws.consent_ec2_public_ip}:2376"
+    docker_cert_path = "${var.docker_cert_path}"
+    link_node = "${module.consent_ethereum.first_node_name}"
+}
