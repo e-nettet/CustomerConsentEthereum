@@ -127,6 +127,9 @@ resource "aws_eip_association" "consent_ip_association" {
 resource "aws_security_group" "consent_security_group_services" {
     name = "consent_security_group_services"
     vpc_id = "${aws_vpc.consent_vpc.id}"
+    tags {
+        Name = "consent_security_group_services"
+    }
     ingress {
         from_port = 3000
         to_port = 3000
@@ -162,6 +165,9 @@ resource "aws_security_group" "consent_security_group_services" {
 resource "aws_security_group" "consent_security_group_admin" {
     name = "consent_security_group_admin"
     vpc_id = "${aws_vpc.consent_vpc.id}"
+    tags {
+        Name = "consent_security_group_admin"
+    }
     ingress {
         from_port = 22
         to_port = 22
@@ -223,9 +229,6 @@ resource "aws_security_group" "consent_security_group_admin" {
         cidr_blocks = [
             "0.0.0.0/0"
         ]
-    }
-    tags {
-        Name = "consent_security_group"
     }
 }
 
