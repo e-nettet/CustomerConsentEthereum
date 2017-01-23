@@ -124,30 +124,12 @@ resource "aws_eip_association" "consent_ip_association" {
     allocation_id = "${aws_eip.consent_ip.id}"
 }
 
-resource "aws_security_group" "consent_security_group" {
-    name = "consent_security_group"
+resource "aws_security_group" "consent_security_group_services" {
+    name = "consent_security_group_services"
     vpc_id = "${aws_vpc.consent_vpc.id}"
-    ingress {
-        from_port = 22
-        to_port = 22
-        protocol = "tcp"
-        cidr_blocks = [
-            "${split(",", var.consent_cidr_blocks)}"
-        ]
-    }
     ingress {
         from_port = 3000
         to_port = 3000
-        protocol = "tcp"
-        self = true
-        cidr_blocks = [
-            "${split(",", var.consent_cidr_blocks)}",
-            "${aws_eip.consent_ip.public_ip}/32"
-        ]
-    }
-    ingress {
-        from_port = 8545
-        to_port = 8545
         protocol = "tcp"
         self = true
         cidr_blocks = [
@@ -168,6 +150,29 @@ resource "aws_security_group" "consent_security_group" {
     ingress {
         from_port = 8000
         to_port = 8000
+        protocol = "tcp"
+        self = true
+        cidr_blocks = [
+            "${split(",", var.consent_cidr_blocks)}",
+            "${aws_eip.consent_ip.public_ip}/32"
+        ]
+    }
+}
+
+resource "aws_security_group" "consent_security_group_admin" {
+    name = "consent_security_group_admin"
+    vpc_id = "${aws_vpc.consent_vpc.id}"
+    ingress {
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = [
+            "${split(",", var.consent_cidr_blocks)}"
+        ]
+    }
+    ingress {
+        from_port = 8545
+        to_port = 8545
         protocol = "tcp"
         self = true
         cidr_blocks = [
@@ -242,7 +247,8 @@ resource "aws_instance" "consent_ec2" {
     iam_instance_profile = "${aws_iam_instance_profile.consent_instance_profile.id}"
     subnet_id = "${aws_subnet.consent_subnet.id}"
     vpc_security_group_ids = [
-        "${aws_security_group.consent_security_group.id}"
+        "${aws_security_group.consent_security_group_services.id}",
+        "${aws_security_group.consent_security_group_admin.id}"
     ]
     root_block_device = {
         volume_type = "gp2"
