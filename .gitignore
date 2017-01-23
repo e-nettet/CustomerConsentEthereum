@@ -2,6 +2,7 @@
 terraform.tfstate
 terraform.tfstate.backup
 terraform-error-*.log
+!**/.terraform/terraform.tfstate
 *secret*
 *.pem
 .idea
