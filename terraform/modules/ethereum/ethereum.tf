@@ -142,6 +142,7 @@ resource "docker_container" "ethereum_netstats_api" {
     ]
     links = [
         "ethereum-node${count.index}:node0",
+        "ethereum-netstats:netstats"
     ]
     depends_on = [
         "docker_container.ethereum_node"
