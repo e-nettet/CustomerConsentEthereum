@@ -10,6 +10,17 @@
  6. `terraform apply`
  7. Type a name for your node.
 
+Setup will spin of next services:
+- http://localhost:8080/ -- Wallet
+- http://localhost:8000/ -- Ether Block Explorer
+- http://localhost:3000/ -- Ethereum Network Status
+- http://localhost:3100/ -- Data Owner
+- http://localhost:3200/ -- Data Requester
+
+Shorthand command: `cd terraform/personal && terraform get && terraform apply && docker exec -it ethereum-node0 geth attach`
+
+Stop all containers: `docker ps -aq | xargs docker stop`
+
 The default configuration will start two Docker container for the actual Ethereum nodes called *ethereum-node0* and *ethereum-node1*, and two containers linked to Ethereum nodes called *ethereum-netstats-api0* and *ethereum-netstats-api1* that report statistics to the [Ethereum Network Status](http://35.156.138.143:3000/) dashboard. You can change the number of nodes by editing *personal.tf*.
 
 The node name parameter is used to identify your node on. Participation in the dashboard is completely optional and does not actually influence the functionality of the blockchain itself in any way. It can take a few minutes for the nodes to discover each other.
@@ -65,4 +76,3 @@ Please note that the initial startup time for a miner can be over 15 minutes dur
 Install [Terraform 0.7.12](https://releases.hashicorp.com/terraform/0.7.12/)
 
 Applies to Terraform 0.8.0 and 0.8.1. See https://github.com/hashicorp/terraform/issues/10754.
-
