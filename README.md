@@ -37,6 +37,9 @@ Please note that the default configuration publishes all administrative function
 ### Ethereum Wallet (Mac only)
  1. `cd /Applications/Ethereum\ Wallet.app/Contents/MacOS/`
  2. `./Ethereum\ Wallet --rpc http://localhost:8545`
+ 
+### Ethereum Wallet (Windows)
+ 1. `"ethereum wallet.exe" --rpc http://localhost:8545`
 
 ## Troubleshooting
 
